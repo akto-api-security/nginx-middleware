@@ -73,5 +73,5 @@ let friendlyHttpStatus = {
         r.variables.responseBo = JSON.stringify(res);
     
     }
-
-export default { to_lower_case };
+    
+    export default { to_lower_case };
