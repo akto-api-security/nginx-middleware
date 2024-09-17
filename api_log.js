@@ -43,7 +43,7 @@ let friendlyHttpStatus = {
     };
     
     function to_lower_case(r, data, flags) {
-        r.sendBuffer(data.toLowerCase(), flags);
+        r.sendBuffer(data, flags);
         r.done()
     
         let rawTime = r.variables.time_iso8601;
@@ -51,14 +51,22 @@ let friendlyHttpStatus = {
         if (statusText == undefined) {
             statusText = "OK";
         }
-    
+
+	let sendData = "";
+	try {
+		let tmp = new Uint8Array(data)
+		const decoder = new TextDecoder('utf-8');
+		sendData = decoder.decode(tmp);
+	} catch (err) {
+	}
+
         let res = {
             "path": r.uri + ( r.variables.args ? "?" + r.variables.args : "") ,
             "requestHeaders": JSON.stringify(r.headersIn), 
             "responseHeaders": JSON.stringify(r.headersOut), 
             "method": r.method,
             "requestPayload": r.requestText,
-            "responsePayload": data,
+            "responsePayload": sendData,
             "ip": "0.0.0.0",
             "time": ""+(Date.parse(rawTime.split("+")[0])/1000), 
             "statusCode": (""+r.variables.status),
