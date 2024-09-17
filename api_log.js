@@ -41,22 +41,24 @@ let friendlyHttpStatus = {
         '504': 'Gateway Timeout',
         '505': 'HTTP Version Not Supported',
     };
-
+    
     function to_lower_case(r, data, flags) {
         r.sendBuffer(data, flags);
         r.done()
-        
+    
         let rawTime = r.variables.time_iso8601;
         let statusText = friendlyHttpStatus[r.variables.status];
         if (statusText == undefined) {
             statusText = "OK";
         }
-    
-        let sendData = "";
-        try {
-            sendData = JSON.stringify(JSON.parse(data));
-        } catch (err) {
-        }
+
+	let sendData = "";
+	try {
+		let tmp = new Uint8Array(data)
+		const decoder = new TextDecoder('utf-8');
+		sendData = decoder.decode(tmp);
+	} catch (err) {
+	}
 
         let res = {
             "path": r.uri + ( r.variables.args ? "?" + r.variables.args : "") ,
