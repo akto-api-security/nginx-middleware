@@ -41,24 +41,30 @@ let friendlyHttpStatus = {
         '504': 'Gateway Timeout',
         '505': 'HTTP Version Not Supported',
     };
-    
+
     function to_lower_case(r, data, flags) {
-        r.sendBuffer(data.toLowerCase(), flags);
+        r.sendBuffer(data, flags);
         r.done()
-    
+        
         let rawTime = r.variables.time_iso8601;
         let statusText = friendlyHttpStatus[r.variables.status];
         if (statusText == undefined) {
             statusText = "OK";
         }
     
+        let sendData = "";
+        try {
+            sendData = JSON.stringify(JSON.parse(data));
+        } catch (err) {
+        }
+
         let res = {
             "path": r.uri + ( r.variables.args ? "?" + r.variables.args : "") ,
             "requestHeaders": JSON.stringify(r.headersIn), 
             "responseHeaders": JSON.stringify(r.headersOut), 
             "method": r.method,
             "requestPayload": r.requestText,
-            "responsePayload": data,
+            "responsePayload": sendData,
             "ip": "0.0.0.0",
             "time": ""+(Date.parse(rawTime.split("+")[0])/1000), 
             "statusCode": (""+r.variables.status),
