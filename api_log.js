@@ -73,9 +73,9 @@ let friendlyHttpStatus = {
             "type":"HTTP/"+r.httpVersion,
             "status": statusText,
             "akto_account_id": "1000000", 
-            "akto_vxlan_id": "123",
+            "akto_vxlan_id": "0",
             "is_pending" :"false",
-            "source":"OTHER"
+            "source":"MIRRORING"
         }
     
         r.variables.responseBo = JSON.stringify(res);
