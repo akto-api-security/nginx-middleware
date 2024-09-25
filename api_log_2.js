@@ -56,15 +56,18 @@ function to_lower_case(r, data, flags) {
     r.done()
 
     // sampling logic
-    if (!ngx.shared.sampleRateCounter.has("count")) {
-        ngx.shared.sampleRateCounter.set("count", 0);
-    }
-    let count = ngx.shared.sampleRateCounter.incr("count", 1);
-    if (count % SAMPLE_RATE_MOD != 0) {
-        return;
-    }
-    if (count > RESET_COUNTER_VALUE) {
-        ngx.shared.sampleRateCounter.clear()
+    try {
+        if (!ngx.shared.sampleRateCounter.has("count")) {
+            ngx.shared.sampleRateCounter.set("count", 0);
+        }
+        let count = ngx.shared.sampleRateCounter.incr("count", 1);
+        if (count % SAMPLE_RATE_MOD != 0) {
+            return;
+        }
+        if (count > RESET_COUNTER_VALUE) {
+            ngx.shared.sampleRateCounter.clear()
+        }
+    } catch (err1){
     }
 
     let rawTime = r.variables.time_iso8601;
