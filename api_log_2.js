@@ -111,11 +111,24 @@ function to_lower_case(r, data, flags) {
     ngx.shared.counter.set("count", i);
 }
 
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 100;
+const LINGER_TIME = 10;
 
 async function call_http(r) {
 
-    if (ngx.shared.counter.has("count") && ngx.shared.counter.get("count") >= BATCH_SIZE) {
+    let rawTime = (Date.parse(r.variables.time_iso8601.split("+")[0]) / 1000);
+
+    if (!ngx.shared.counter.has("timer")) {
+        ngx.shared.counter.set("timer", rawTime);
+    }
+
+    if ((ngx.shared.counter.has("count") &&
+        ngx.shared.counter.get("count") >= BATCH_SIZE) ||
+        (ngx.shared.counter.has("timer") &&
+            ((rawTime - ngx.shared.counter.get("timer")) >= LINGER_TIME))) {
+
+        ngx.shared.counter.set("timer", rawTime);
+
         try {
             let items = ngx.shared.tempData.items()
             let arr = []
