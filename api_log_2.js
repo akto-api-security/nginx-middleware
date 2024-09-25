@@ -89,7 +89,7 @@ function to_lower_case(r, data, flags) {
         "requestHeaders": JSON.stringify(r.headersIn),
         "responseHeaders": JSON.stringify(r.headersOut),
         "method": r.method,
-        "requestPayload": r.requestText,
+        "requestPayload": r.requestText || "",
         "responsePayload": sendData,
         "ip": "0.0.0.0",
         "time": "" + (Date.parse(rawTime.split("+")[0]) / 1000),
