@@ -55,8 +55,16 @@ function to_lower_case(r, data, flags) {
     let sendData = "";
     try {
         let tmp = new Uint8Array(data)
-        const decoder = new TextDecoder('utf-8');
-        sendData = decoder.decode(tmp);
+        // Check if the data is gzip compressed
+        // Gzip files start with the bytes 31 139
+        // If it is gzip compressed, decode it to base64
+        // Otherwise, decode it as utf-8
+        if (tmp.length >= 2 && tmp[0] == 31 && tmp[1] == 139) {
+            sendData = Buffer.from(tmp).toString('base64');
+        } else {
+            const decoder = new TextDecoder('utf-8');
+            sendData = decoder.decode(tmp);
+        }
     } catch (err) {
     }
 
