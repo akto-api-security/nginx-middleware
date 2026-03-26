@@ -4,7 +4,6 @@ sample nginx-conf:
 ```bash
 
 load_module /etc/nginx/modules/ngx_http_js_module.so;
-load_module /etc/nginx/modules/ngx_http_kafka_log_module.so;
 
 
 user  nginx;
@@ -31,10 +30,11 @@ http {
 
     subrequest_output_buffer_size 8k;
     js_path "/etc/nginx/njs/";
-    js_var $responseBo "{}";
     js_import main2 from api_log.js;
-    kafka_log_kafka_brokers "kafka1:19092";
-    kafka_log_kafka_buffer_max_messages 100000;
+    js_import batchSender from batch_sender.js;
+
+    # URL of the Akto HTTP service to receive API traffic data
+    js_var $akto_target_url "http://akto-runtime:9090/api/data";
 
     sendfile        on;
     #tcp_nopush     on;
@@ -48,7 +48,8 @@ http {
         server_name  localhost;
         location / {
             js_body_filter main2.to_lower_case buffer_type=buffer;
-            kafka_log kafka:akto.api.logs $responseBo;
+            # Flush batch every 5 seconds (js_periodic must be in location block)
+            js_periodic batchSender.flushBatch interval=5s;
             proxy_pass   http://juiceshop:3000;
         }
     }

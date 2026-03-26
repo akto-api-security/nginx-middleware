@@ -1,3 +1,5 @@
+import batchSender from 'batch_sender.js';
+
 let friendlyHttpStatus = {
     '200': 'OK',
     '201': 'Created',
@@ -55,10 +57,6 @@ function to_lower_case(r, data, flags) {
     let sendData = "";
     try {
         let tmp = new Uint8Array(data)
-        // Check if the data is gzip compressed
-        // Gzip files start with the bytes 31 139
-        // If it is gzip compressed, decode it to base64
-        // Otherwise, decode it as utf-8
         if (tmp.length >= 2 && tmp[0] == 31 && tmp[1] == 139) {
             sendData = Buffer.from(tmp).toString('base64');
         } else {
@@ -86,7 +84,8 @@ function to_lower_case(r, data, flags) {
             "is_pending": "false",
             "source": "MIRRORING"
         }
-        r.variables.responseBo = JSON.stringify(res);
+        ngx.log(ngx.INFO, "Record formed: " + JSON.stringify(res));
+        batchSender.addToBatch(res, r.variables.akto_target_url);
     } catch (err) {
     }
 
